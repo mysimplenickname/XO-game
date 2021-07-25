@@ -79,6 +79,12 @@ public class GameboardView: UIView {
         onSelectPosition?(position)
     }
     
+    public func fakeTouch() {
+        let markedPositions = markViewForPosition.map { $0.key }
+        let position = generatePosition(markedPositions: markedPositions)
+        onSelectPosition?(position)
+    }
+    
     // MARK: - UI
     
     private func drawColumnLines(for rect: CGRect) {
@@ -141,5 +147,25 @@ public class GameboardView: UIView {
                                 width: columnWidth,
                                 height: rowHeight).insetBy(dx: 0.5 * Constants.lineWidth,
                                                            dy: 0.5 * Constants.lineWidth)
+    }
+    
+    private func generatePosition(markedPositions: [GameboardPosition]) -> GameboardPosition {
+        
+        var positions: [GameboardPosition] = []
+        Array(0..<GameboardSize.rows).forEach { row in
+            Array(0..<GameboardSize.columns).forEach { column in
+                positions.append(GameboardPosition(column: column, row: row))
+            }
+        }
+        
+        markedPositions.forEach { position in
+            if let index = positions.firstIndex(of: position) {
+                positions.remove(at: index)
+            }
+        }
+        
+        let randomPosition = positions[Int.random(in: 0..<positions.count)]
+        return randomPosition
+        
     }
 }

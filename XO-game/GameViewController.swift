@@ -16,6 +16,8 @@ class GameViewController: UIViewController {
     @IBOutlet var winnerLabel: UILabel!
     @IBOutlet var restartButton: UIButton!
     
+    var gameMode: GameMode?
+    
     private var counter: Int = 0
     public let gameBoard = Gameboard()
     private lazy var referee = Referee(gameboard: gameBoard)
@@ -28,6 +30,8 @@ class GameViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        prepareLabels()
         
         firstPlayerTurn()
         
@@ -55,14 +59,14 @@ class GameViewController: UIViewController {
     
     private func nextPlayerTurn() {
         if let winner = referee.determineWinner() {
-            currentState = GameEndState(winnerPlayer: winner, gameViewControler: self)
+            currentState = GameEndState(gameMode: gameMode, winnerPlayer: winner, gameViewController: self)
             Logger.shared.log(action: .gameFinished(winner: winner))
             return
         }
         
         if counter >= 9 {
             Logger.shared.log(action: .gameFinished(winner: nil))
-            currentState = GameEndState(winnerPlayer: nil, gameViewControler: self)
+            currentState = GameEndState(gameMode: nil, winnerPlayer: nil, gameViewController: self)
             return
         }
         
@@ -73,7 +77,17 @@ class GameViewController: UIViewController {
                                            gameBoard: gameBoard,
                                            gameboardView: gameboardView,
                                            markViewPrototype: nextPlayer.markViewPrototype)
+            if gameMode == .pvc && nextPlayer == .second {
+                gameboardView.fakeTouch()
+            }
         }
+    }
+    
+    private func prepareLabels() {
+        
+        firstPlayerTurnLabel.text = gameMode?.firstPlayer
+        secondPlayerTurnLabel.text = gameMode?.secondPlayer
+        
     }
     
     @IBAction func restartButtonTapped(_ sender: UIButton) {

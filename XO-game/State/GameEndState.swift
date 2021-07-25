@@ -12,34 +12,39 @@ class GameEndState: GameState {
     var isMoveCompleted: Bool = false
     
     public let winnerPlayer: Player?
-    weak var gameViewControler: GameViewController?
+    weak var gameViewController: GameViewController?
     
-    init(winnerPlayer: Player?, gameViewControler: GameViewController) {
+    private let gameMode: GameMode?
+    
+    init(gameMode: GameMode?, winnerPlayer: Player?, gameViewController: GameViewController) {
+        self.gameMode = gameMode
+        
         self.winnerPlayer = winnerPlayer
-        self.gameViewControler = gameViewControler
+        self.gameViewController = gameViewController
     }
     
     func addSign(at position: GameboardPosition) {}
     
     func begin() {
-        gameViewControler?.winnerLabel.isHidden = false
+        guard let gameVC = gameViewController else { return }
+        gameVC.winnerLabel.isHidden = false
         
         if let winnerPlayer = winnerPlayer {
-            gameViewControler?.winnerLabel.text = setPlayerName(player: winnerPlayer) + " won"
+            gameVC.winnerLabel.text = setPlayerName(player: winnerPlayer) + " won"
         } else {
-            gameViewControler?.winnerLabel.text = "No winner/Draw"
+            gameVC.winnerLabel.text = "No winner/Draw"
         }
         
-        gameViewControler?.firstPlayerTurnLabel.isHidden = true
-        gameViewControler?.secondPlayerTurnLabel.isHidden = true
+        gameVC.firstPlayerTurnLabel.isHidden = true
+        gameVC.secondPlayerTurnLabel.isHidden = true
     }
     
     private func setPlayerName(player: Player) -> String {
         switch player {
         case .first:
-            return "First"
+            return gameMode?.firstPlayer ?? "First player"
         case .second:
-            return "Second"
+            return gameMode?.secondPlayer ?? "Second player"
         }
     }
     
