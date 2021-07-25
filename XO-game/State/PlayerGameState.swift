@@ -9,6 +9,7 @@
 import Foundation
 
 class PlayerGameState: GameState {
+    
     var isMoveCompleted: Bool = false
     let player: Player!
     weak var gameViewControler: GameViewController?

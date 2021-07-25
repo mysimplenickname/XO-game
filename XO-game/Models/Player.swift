@@ -9,6 +9,7 @@
 import Foundation
 
 public enum Player: CaseIterable {
+        
     case first
     case second
     
@@ -27,4 +28,5 @@ public enum Player: CaseIterable {
             return OView()
         }
     }
+    
 }
