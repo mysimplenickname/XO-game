@@ -1,39 +1,35 @@
 //
-//  PlayerGameState.swift
+//  TurnState.swift
 //  XO-game
 //
-//  Created by Veaceslav Chirita on 19.07.2021.
+//  Created by Lev on 7/26/21.
 //  Copyright © 2021 plasmon. All rights reserved.
 //
 
 import Foundation
 
-class PlayerGameState: GameState {
+class TurnState: GameState {
     
     var isMoveCompleted: Bool = false
     let player: Player!
     weak var gameViewController: GameViewController?
-    var gameBoard: Gameboard
-    var gameBoardView: GameboardView
     var markViewPrototype: MarkView
     
-    init(player: Player?, gameViewController: GameViewController,
-         gameBoard: Gameboard,
-         gameboardView: GameboardView, markViewPrototype: MarkView) {
+    var marks: [GameboardPosition] = []
+    
+    init(player: Player, gameViewController: GameViewController, markViewPrototype: MarkView, marks: [GameboardPosition]) {
         self.player = player
         self.gameViewController = gameViewController
-        self.gameBoard = gameBoard
-        self.gameBoardView = gameboardView
         self.markViewPrototype = markViewPrototype
+        self.marks = marks
     }
     
     func addSign(at position: GameboardPosition) {
         guard !isMoveCompleted else { return }
         
-//        let markView = player == .first ? XView() : OView()
-        Logger.shared.log(action: .playerSetMarkView(player: player, position: position))
         gameViewController?.gameboardView.placeMarkView(markViewPrototype, at: position)
         gameViewController?.gameBoard.setPlayer(player, at: position)
+        marks.append(position)
         
         isMoveCompleted = true
     }
@@ -52,6 +48,5 @@ class PlayerGameState: GameState {
         
         gameViewController?.winnerLabel.isHidden = true
     }
-    
     
 }

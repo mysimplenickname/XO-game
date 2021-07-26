@@ -32,12 +32,15 @@ public final class Referee {
     // MARK: - Public
     
     public func determineWinner() -> Player? {
+        var winner: Player?
+        var twoWinners: Bool = true
         for player in Player.allCases {
             if doesPlayerHaveWinningCombination(player) {
-                return player
+                twoWinners.toggle()
+                winner = player
             }
         }
-        return nil
+        return twoWinners ? nil : winner
     }
     
     // MARK: - Private

@@ -17,6 +17,8 @@ public class GameboardView: UIView {
     
     public private(set) var markViewForPosition: [GameboardPosition: MarkView] = [:]
     
+    var savedPositions: [GameboardPosition: MarkView] = [:]
+    
     // MARK: - Constants
     
     internal struct Constants {
@@ -39,6 +41,9 @@ public class GameboardView: UIView {
         for (_, markView) in markViewForPosition {
             markView.removeFromSuperview()
         }
+        
+        savePositions()
+        
         markViewForPosition = [:]
     }
     
@@ -168,4 +173,11 @@ public class GameboardView: UIView {
         return randomPosition
         
     }
+    
+    private func savePositions() {
+        markViewForPosition.forEach { position, mark in
+            savedPositions[position] = mark
+        }
+    }
+    
 }

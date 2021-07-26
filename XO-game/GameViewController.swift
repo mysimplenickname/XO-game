@@ -28,33 +28,125 @@ class GameViewController: UIViewController {
         }
     }
     
+    var marks: [GameboardPosition] = []
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         prepareLabels()
         
-        firstPlayerTurn()
-        
-        gameboardView.onSelectPosition = { [weak self] position in
-            guard let self = self else { return }
+        switch gameMode {
+        case .pvp:
             
-            self.currentState.addSign(at: position)
-            self.counter += 1
-            if self.currentState.isMoveCompleted {
-                self.nextPlayerTurn()
+            firstTurn()
+            
+            gameboardView.onSelectPosition = { [weak self] position in
+                guard let self = self else { return }
+                
+                self.currentState.addSign(at: position)
+                self.marks.append(position)
+                if self.currentState.isMoveCompleted {
+                    self.nextTurn()
+                }
             }
             
-//            self.gameboardView.placeMarkView(XView(), at: position)
+        case .pvc:
+            firstPlayerTurn()
+            
+            gameboardView.onSelectPosition = { [weak self] position in
+                guard let self = self else { return }
+                
+                self.currentState.addSign(at: position)
+                self.counter += 1
+                if self.currentState.isMoveCompleted {
+                    self.nextPlayerTurn()
+                }
+                
+    //            self.gameboardView.placeMarkView(XView(), at: position)
+            }
+        default:
+            break
         }
+        
+    }
+    
+    private func firstTurn() {
+        let firstPlayer: Player = .first
+        currentState = TurnState(
+            player: firstPlayer,
+            gameViewController: self,
+            markViewPrototype: firstPlayer.markViewPrototype,
+            marks: marks
+        )
+    }
+    
+    private func secondTurn() {
+        let secondPlayer: Player = .second
+        currentState = TurnState(
+            player: secondPlayer,
+            gameViewController: self,
+            markViewPrototype: secondPlayer.markViewPrototype,
+            marks: marks
+        )
+    }
+    
+    private func nextTurn() {
+        
+        guard let turnState = currentState as? TurnState else { return }
+        
+        switch turnState.player {
+        case .first:
+            if turnState.marks.count > 4 {
+                marks = []
+                gameboardView.clear()
+                secondTurn()
+            } else {
+                firstTurn()
+            }
+        case .second:
+            if turnState.marks.count > 4 {
+                endGame()
+            } else {
+                secondTurn()
+            }
+        default:
+            break
+        }
+        
+    }
+    
+    private func endGame() {
+        
+        gameboardView.clear()
+        gameboardView.savedPositions.forEach { position, mark in
+            gameboardView.placeMarkView(mark, at: position)
+        }
+        
+        if let winner = referee.determineWinner() {
+            currentState = GameEndState(
+                gameMode: gameMode,
+                winnerPlayer: winner,
+                gameViewController: self
+            )
+        } else {
+            currentState = GameEndState(
+                gameMode: nil,
+                winnerPlayer: nil,
+                gameViewController: self
+            )
+        }
+        
     }
     
     private func firstPlayerTurn() {
         let firstPlayer: Player = .first
-        currentState = PlayerGameState(player: firstPlayer, gameViewControler: self,
-                                       gameBoard: gameBoard,
-                                       gameboardView: gameboardView,
-                                       markViewPrototype: firstPlayer.markViewPrototype)
-        
+        currentState = PlayerGameState(
+            player: firstPlayer,
+            gameViewController: self,
+            gameBoard: gameBoard,
+            gameboardView: gameboardView,
+            markViewPrototype: firstPlayer.markViewPrototype
+        )
     }
     
     private func nextPlayerTurn() {
@@ -73,7 +165,7 @@ class GameViewController: UIViewController {
         if let playerState = currentState as? PlayerGameState {
             let nextPlayer = playerState.player.next
             currentState = PlayerGameState(player: nextPlayer,
-                                           gameViewControler: self,
+                                           gameViewController: self,
                                            gameBoard: gameBoard,
                                            gameboardView: gameboardView,
                                            markViewPrototype: nextPlayer.markViewPrototype)
@@ -93,10 +185,19 @@ class GameViewController: UIViewController {
     @IBAction func restartButtonTapped(_ sender: UIButton) {
         gameboardView.clear()
         gameBoard.clear()
-        counter = 0
         
-        firstPlayerTurn()
+        gameboardView.savedPositions = [:]
         
+        switch gameMode {
+        case .pvp:
+            marks = []
+            firstTurn()
+        case .pvc:
+            counter = 0
+            firstPlayerTurn()
+        default:
+            break
+        }
         Logger.shared.log(action: .restartGame)
     }
 }
