@@ -26,6 +26,7 @@ class GameEndState: GameState {
     func addSign(at position: GameboardPosition) {}
     
     func begin() {
+        
         guard let gameVC = gameViewController else { return }
         gameVC.winnerLabel.isHidden = false
         

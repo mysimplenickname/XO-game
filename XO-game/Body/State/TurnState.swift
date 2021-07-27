@@ -28,7 +28,16 @@ class TurnState: GameState {
         guard !isMoveCompleted else { return }
         
         gameViewController?.gameboardView.placeMarkView(markViewPrototype, at: position)
-        gameViewController?.gameBoard.setPlayer(player, at: position)
+//        gameViewController?.gameBoard.setPlayer(player, at: position)
+        
+        GameCommandCreator.shared.createCommand(for:
+                                                    .playerTurn(
+                                                        player: player,
+                                                        position: position,
+                                                        gameboard: gameViewController!.gameBoard
+                                                    )
+                                                )
+        
         marks.append(position)
         
         isMoveCompleted = true
